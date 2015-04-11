@@ -18,13 +18,13 @@ class DOM_Tree
 		Node *nr;
 		
 	private:
-		static Node* copiar_nodos(Node *p);								/// COPIA LOS NODOS A PARTIR DE UNA RAIZ
+	    Node* copiar_nodos(Node *p);								/// COPIA LOS NODOS A PARTIR DE UNA RAIZ
 		
 		static void destruir_nodos(Node *p);							/// DESTRUYE LOS NODOS A PARTIR DE UNA RAIZ
 		
 		static list<DOM_Tree> hijos(Node *n);							/// DEVUELVE LOS HIJOS DE UN ARBOL
 
-		static void mostrar_arbol(Node* p , int cont){		
+     	void impresion(Node *p , int cont);		
 		
 		static void preorden_an(Node *p, list<Element> &l);				///	RECORRIDO EN PREORDE DE UN ARBOL
 		
@@ -46,7 +46,8 @@ class DOM_Tree
 		
 		void operator = (const DOM_Tree &a);							/// SOBRECARGA DEL OPERADOR = 	
 		
-		ostream &operator<<(ostream &out, DOM_Tree d);
+		friend ostream &operator<<(ostream &out, DOM_Tree d);
+
 		
 		~DOM_Tree();													/// DESTRUCTOR
 };
@@ -71,15 +72,15 @@ Node* DOM_Tree::copiar_nodos(Node *p)
 }
 
 /// DESTRUYE LOS NODOS A PARTIR DE UNA RAIZ
-void DOM_Tree::destruir_nodos(Node *apRaiz){
-        // Recorrido en Postorden
-        if (apRaiz != NULL)     {
-                destruir_nodos(apRaiz->firstChild());
-                destruir_nodos(apRaiz->nextSibling());
-                delete apRaiz;
-                apRaiz = NULL;
-        }
+void DOM_Tree::destruir_nodos(Node *p){
+ /*       if (p != NULL)     {
+                destruir_nodos(p->firstChild());
+                destruir_nodos(p->nextSibling());
+                delete p;
+                p = NULL;
+        }*/
 }
+
 
 /// DEVUELVE LOS HIJOS DE UN ARBOL
 list<DOM_Tree> DOM_Tree::hijos(Node *n)
@@ -248,12 +249,16 @@ void DOM_Tree::removeChild (int p)
 		else
 		{
 			aux = nr->firstChild();
+			aux2 = aux;
 			
 			for (i = 1; i < p; i++) 
 			{
-				aux = aux->nextSibling();
+				if (i < p-1)
+				{
+					aux = aux->nextSibling();
+				}
+				aux2 = aux2->nextSibling();
 			}
-			aux2 = aux->nextSibling();
 			aux->setNextSibling(aux2->nextSibling());
 		}
 		delete(aux2);
@@ -280,37 +285,34 @@ void DOM_Tree:: operator = (const DOM_Tree &a)	{
 }
 
 /// SOBRECARGA DEL OPERADOR <<
-ostream &operator<<(ostream &out, DOM_Tree d){
-
+ostream& operator<<(ostream &out, DOM_Tree a){
     Node* p;
     Element e;
-    list<string> L;
-	list<string> cad;
     int cont = 0;
 
-    if(d.nr != NULL){
-
-	cout << "<!doctype html" << endl;
-    	p = d.nr;
- 		d.mostrar_arbol(p,cont);
+    if(a.nr != NULL){
+		cout << "<!doctype html" << endl;
+    	p = a.nr;
+ 		a.impresion(p, cont);
     }
 	return(out);
 }
-void DOM_Tree::mostrar_arbol(Node* p , int cont){
+void DOM_Tree::impresion(Node* p , int cont){
 	Node *aux,*aux1;
 	Element e;
 	list<string> L;
 	int i,pos;
+
 	string auxInner,a;
 	
 	if( p != NULL){
 	
-			for(i=1;i<=cont;i++){ 
-				cout<<"	";
-			}
+			for(i=1;i<=cont;i++){ cout<<"	";}
 	
 			e = p->element();
-			cout<<"<"<<e.tagName(); 
+			
+			cout<<"<"<<e.tagName();
+			
 			L = e.attributeList();
 			
 			if(!L.empty()){
@@ -324,17 +326,17 @@ void DOM_Tree::mostrar_arbol(Node* p , int cont){
 			auxInner = e.innerHTML();
 			if(auxInner[0] != '<'){
 				pos = auxInner.find("<");
-				auxInner = auxInner.substr(0,pos);
+					auxInner = auxInner.substr(0,pos);
 				cout<<auxInner;
 			}
-			aux1= aux = p->firstChild();
+			aux1=aux = p->firstChild();
 			
 			if(aux != NULL){
 				cout<<endl;
 			}
 					
 			while(aux != NULL){
-				mostrar_arbol(aux,cont+1);
+				impresion(aux,cont+1);
 				aux = aux->nextSibling();
 			} 
 				if(aux1 != NULL)
@@ -344,6 +346,8 @@ void DOM_Tree::mostrar_arbol(Node* p , int cont){
 			cout<<">"<<endl;
 			
 	}
+
+
 }
 
 /// DESTRUCTOR
@@ -354,3 +358,4 @@ DOM_Tree::~DOM_Tree()
         }
 }
 #endif 									  
+

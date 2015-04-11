@@ -1,5 +1,5 @@
 # Variables o Macros
-EXE=main
+EXE=PRINCIPAL
 OBJS=main.o
 CC=g++
 FLAGS=-Wall -g
